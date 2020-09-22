@@ -1,2 +1,2 @@
-# Megadados2020-2-Projeto1-alunos
-Repositorio de códigos de referência para o projeto 1 de Megadados
+# APS 2 Megadados -Lucas Muchaluat e Luiz Vitor Germanos
+Repositorio de códigos de referência para a APS 2 de Megadados
