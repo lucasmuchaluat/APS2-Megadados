@@ -127,35 +127,38 @@ def test_create_delete_task():
     assert response.status_code == 200
     assert response.json() == None
 
-
-def test_patch_task():
+# test if the service is refreshing a valid task when there is a correct patch request
+def test_right_patch_task():
+    # create task
     response_1 = client.post(
         "/task", json={"description": "Buy baby diapers", "completed": False})
     assert response_1.status_code == 200
 
+    # refresh task
     response = client.patch(
         f"/task/{response_1.json()}", json={"description": "Buy baby diapers", "completed": True})
     assert response.status_code == 200
     assert response.json() == None
 
+    # check if it refreshed correctly
     response = client.get(f"/task/{response_1.json()}")
     assert response.status_code == 200
-
     assert response.json() == {
         "description": "Buy baby diapers", "completed": True}
 
+    # delete task
     response = client.delete(f"/task/{response_1.json()}")
     assert response.status_code == 200
     assert response.json() == None
 
-
+# test if the service returns 405 if there is a patch request with a wrong endpoint
 def test_patch_not_allowed():
     response = client.patch("/task")
     assert response.status_code == 405
     assert response.json() == {'detail': 'Method Not Allowed'}
 
-
-def test_patch_uuid():
+# test if the service returns 422 if there is a patch request with a not formated ID
+def test_patch_not_formated_uuid():
     false_uuid = "huhuhuh"
     response = client.patch(
         f"/task/{false_uuid}", json={"description": "Buy baby diapers", "completed": True})
@@ -163,43 +166,46 @@ def test_patch_uuid():
     assert response.json() == {'detail': [{'loc': [
         'path', 'uuid_'], 'msg': 'value is not a valid uuid', 'type': 'type_error.uuid'}]}
 
-
-def test_patch_non_existing_uuid():
+# test if the service returns 404 if there is a patch request with wrong ID
+def test_patch_wrong_uuid():
     not_uuid = uuid.uuid4()
     response = client.patch(
         f"/task/{not_uuid}", json={"description": "Buy baby diapers", "completed": True})
     assert response.status_code == 404
     assert response.json() == {'detail': 'Task not found'}
 
-
-def test_put_task():
+# test if the service is refreshing a valid task when there is a correct put request
+def test_right_put_task():
+    # create task
     response_1 = client.post(
         "/task", json={"description": "Buy baby diapers", "completed": False})
     assert response_1.status_code == 200
 
+    # refresh task
     response = client.put(f"/task/{response_1.json()}",
                           json={"description": "Buy baby diapers", "completed": True})
     assert response.status_code == 200
     assert response.json() == None
 
+    # check if it refreshed correctly
     response = client.get(f"/task/{response_1.json()}")
     assert response.status_code == 200
-
     assert response.json() == {
         "description": "Buy baby diapers", "completed": True}
 
+    # delete task
     response = client.delete(f"/task/{response_1.json()}")
     assert response.status_code == 200
     assert response.json() == None
 
-
+# test if the service returns 405 if there is a put request with a wrong endpoint
 def test_put_not_allowed():
     response = client.put("/task")
     assert response.status_code == 405
     assert response.json() == {'detail': 'Method Not Allowed'}
 
-
-def test_put_uuid():
+# test if the service returns 422 if there is a put request with a not formated ID
+def test_put_not_formated_uuid():
     false_uuid = "huhuhuh"
     response = client.put(
         f"/task/{false_uuid}", json={"description": "Buy baby diapers", "completed": True})
@@ -207,9 +213,9 @@ def test_put_uuid():
     assert response.json() == {'detail': [{'loc': [
         'path', 'uuid_'], 'msg': 'value is not a valid uuid', 'type': 'type_error.uuid'}]}
 
-
+# test if the service returns 404 if there is a put request with a wrong ID
 def test_put_wrong_uuid():
-    wrong_uuid = "1084b51e-6d0c-420f-b2b0-b28d17a683c6"
+    wrong_uuid = uuid.uuid4()
     response = client.put(
         f"/task/{wrong_uuid}", json={"description": "Buy baby diapers", "completed": True})
     assert response.status_code == 404
