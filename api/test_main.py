@@ -132,7 +132,7 @@ def test_get_tasks_not_completed():
     assert response4.status_code == 200
     assert response4.json() == None
 
-# test if the service is deleting a task correctly
+# test if the service is deleting and creating a task correctly
 def test_delete_right_task():
     # create task
     response = client.post(
@@ -162,16 +162,6 @@ def test_delete_not_formated_uuid():
     assert response.status_code == 422
     assert response.json() == {'detail': [{'loc': [
         'path', 'uuid_'], 'msg': 'value is not a valid uuid', 'type': 'type_error.uuid'}]}
-
-#===
-def test_create_delete_task():
-    response = client.post(
-        "/task", json={"description": "Buy baby diapers", "completed": False})
-    assert response.status_code == 200
-
-    response = client.delete(f"/task/{response.json()}")
-    assert response.status_code == 200
-    assert response.json() == None
 
 # test if the service is refreshing a valid task when there is a correct patch request
 def test_right_patch_task():
