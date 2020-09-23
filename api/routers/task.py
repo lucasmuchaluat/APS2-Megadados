@@ -16,12 +16,7 @@ router = APIRouter()
     response_model=Dict[uuid.UUID, Task],
 )
 async def read_tasks(completed: bool = None, db: DBSession = Depends(get_db)):
-    if completed is None:
-        return db.tasks
-    return {
-        uuid_: item
-        for uuid_, item in db.tasks.items() if item.completed == completed
-    }
+    return db.function_read_tasks(completed)
 
 
 @router.post(
@@ -31,9 +26,7 @@ async def read_tasks(completed: bool = None, db: DBSession = Depends(get_db)):
     response_model=uuid.UUID,
 )
 async def create_task(item: Task, db: DBSession = Depends(get_db)):
-    uuid_ = uuid.uuid4()
-    db.tasks[uuid_] = item
-    return uuid_
+    return db.function_create_task(item)
 
 
 @router.get(
@@ -43,13 +36,7 @@ async def create_task(item: Task, db: DBSession = Depends(get_db)):
     response_model=Task,
 )
 async def read_task(uuid_: uuid.UUID, db: DBSession = Depends(get_db)):
-    try:
-        return db.tasks[uuid_]
-    except KeyError as exception:
-        raise HTTPException(
-            status_code=404,
-            detail='Task not found',
-        ) from exception
+    return db.function_read_task(uuid_)
 
 
 @router.put(
@@ -59,15 +46,7 @@ async def read_task(uuid_: uuid.UUID, db: DBSession = Depends(get_db)):
 
 )
 async def replace_task(uuid_: uuid.UUID, item: Task, db: DBSession = Depends(get_db)):
-    try:
-        if(db.tasks[uuid_] == None):
-            raise Exception
-        db.tasks[uuid_] = item
-    except KeyError as exception:
-        raise HTTPException(
-            status_code=404,
-            detail='Task not found',
-        ) from exception
+    return db.function_replace_task(uuid_, item)
 
 
 @router.patch(
@@ -76,14 +55,7 @@ async def replace_task(uuid_: uuid.UUID, item: Task, db: DBSession = Depends(get
     description='Alters a task identified by its UUID',
 )
 async def alter_task(uuid_: uuid.UUID, item: Task, db: DBSession = Depends(get_db)):
-    try:
-        update_data = item.dict(exclude_unset=True)
-        db.tasks[uuid_] = db.tasks[uuid_].copy(update=update_data)
-    except KeyError as exception:
-        raise HTTPException(
-            status_code=404,
-            detail='Task not found',
-        ) from exception
+    return db.function_alter_task(uuid_, item)
 
 
 @router.delete(
@@ -92,10 +64,4 @@ async def alter_task(uuid_: uuid.UUID, item: Task, db: DBSession = Depends(get_d
     description='Deletes a task identified by its UUID',
 )
 async def remove_task(uuid_: uuid.UUID, db: DBSession = Depends(get_db)):
-    try:
-        del db.tasks[uuid_]
-    except KeyError as exception:
-        raise HTTPException(
-            status_code=404,
-            detail='Task not found',
-        ) from exception
+    return db.function_remove_task(uuid_)
